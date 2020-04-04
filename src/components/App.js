@@ -8,6 +8,7 @@ import Home from "./Pages/Home";
 import SinglePostPage from "./Pages/SinglePostPage";
 import authLogin from  './Pages/authLogin';
 import authRegister from './Pages/authRegister';
+import authLogout from './Pages/authLogout';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
               <Route path={'/post/:post_id'} component={SinglePostPage} />
               <Route path={'/auth/login'} component={authLogin} />
               <Route path={'/auth/register'} component={authRegister} />
-              <Route path={'/auth/logout'} />
+              <Route path={'/auth/logout'} component={authLogout} />
           </Switch>
       </div>
   );

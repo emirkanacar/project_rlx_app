@@ -7,6 +7,11 @@ const PostsSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    postDesc: {
+        type: String,
+        required: true,
+        trim: true
+    },
     postAuthor: {
         type: String,
         required: true,

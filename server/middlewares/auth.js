@@ -8,21 +8,24 @@ module.exports = (req, res, next) => {
         if(error) {
             switch (error.name) {
                 case 'JsonWebTokenError':
-                    return res.send({ message: "Invalid token", appCode: 50}, 500);
+                    return res.send(500, { message: "Invalid token", appCode: 50});
                     next();
+                    break;
 
                 case 'TokenExpiredError':
-                    return res.send({ message: "Token has expired", appCode: 400}, 400);
+                    return res.send(400, { message: "Token has expired", appCode: 40});
                     next();
+                    break;
 
                 default:
-                    return res.send({ message: "Authorization error", appCode: 400}, 400);
+                    return res.send(400, { message: "Authorization error", appCode: 40});
                     next();
+                    break;
             }
         }
         if(decoded === null)
         {
-            return res.send({ message: "Authorization error", appCode: 400}, 400);
+            return res.send(400, { message: "Authorization error", appCode: 40});
         }else {
             req.userData = decoded;
             next();

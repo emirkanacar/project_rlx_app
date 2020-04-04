@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import slugify from "slugify";
 import appConfig from "../../appConfig";
 
+
 const Navbar = ({ auth }) => {
+
     const defaultNavbar = (
         <nav className="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
             <div className="container">
@@ -95,7 +97,6 @@ const Navbar = ({ auth }) => {
 
     return (
         <div>
-            { console.log(auth.length) }
             { auth.isAuth ? authNavbar : defaultNavbar }
         </div>
     );

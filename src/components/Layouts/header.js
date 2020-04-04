@@ -19,7 +19,6 @@ class Header extends Component {
     }
 
     render() {
-
         return (
             <div>
                 <Navbar auth={this.props.auth} />
