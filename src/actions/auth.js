@@ -1,4 +1,5 @@
 import axios from 'axios';
+import appConfig from '../appConfig';
 
 export const USER_REGISTER_PENDING = 'USER_REGISTER_PENDING';
 export const USER_REGISTER_FULFILLED = 'USER_REGISTER_FULFILLED';
@@ -16,7 +17,7 @@ export function loginUser(user) {
     return dispatch => {
         dispatch({
             type: 'USER_LOGIN',
-            payload: axios.post('http://localhost:2200/user/login', user, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', }})
+            payload: axios.post(appConfig.APP_API_URL + '/user/login', user, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', }})
                 .then((res) => {
                     localStorage.setItem('auth_token', res.data.token);
                     return res.data;
@@ -29,7 +30,7 @@ export function registerUser(user) {
     return dispatch => {
         dispatch({
             type: 'USER_REGISTER',
-            payload: axios.post('http://localhost:2200/user/create', user, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', }})
+            payload: axios.post(appConfig.APP_API_URL +'/user/create', user, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', }})
                 .then((res) => {
                     if(res.data.appCode === 21)
                     {
@@ -46,7 +47,7 @@ export function checkAuth(token) {
     return dispatch => {
         dispatch({
             type: 'USER_CHECK',
-            payload: axios.get('http://localhost:2200/user/me', { headers: { 'Authorization': 'Bearer ' + token } })
+            payload: axios.get(appConfig.APP_API_URL +'/user/me', { headers: { 'Authorization': 'Bearer ' + token } })
                 .then(res => res.data.user)
         })
     }
