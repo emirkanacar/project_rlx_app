@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import {Helmet} from "react-helmet";
 
 import Header from "../Layouts/header";
 import Footer from "../Layouts/footer";
 
 import {loginUser} from '../../actions/auth';
 import {Redirect} from "react-router";
+import appConfig from "../../appConfig";
 
 class AuthLogin extends Component {
 
@@ -63,6 +65,9 @@ class AuthLogin extends Component {
         const {errors} = this.state;
         return (
             <div>
+                <Helmet>
+                    <title>{appConfig.APP_NAME + ' - Login'} </title>
+                </Helmet>
                 <Header />
                 <header className="masthead" style={{ backgroundImage: "url('img/home-bg.jpg')" }}>
                     <div className="overlay"/>

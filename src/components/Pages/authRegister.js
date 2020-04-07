@@ -6,6 +6,8 @@ import Header from "../Layouts/header";
 import Footer from "../Layouts/footer";
 
 import {registerUser} from '../../actions/auth';
+import {Helmet} from "react-helmet";
+import appConfig from "../../appConfig";
 
 class AuthLogin extends Component {
 
@@ -74,6 +76,9 @@ class AuthLogin extends Component {
         const {errors} = this.state;
         return (
             <div>
+                <Helmet>
+                    <title>{appConfig.APP_NAME + ' - Register'} </title>
+                </Helmet>
                 <Header />
                 <header className="masthead" style={{ backgroundImage: "url('img/home-bg.jpg')" }}>
                     <div className="overlay"/>

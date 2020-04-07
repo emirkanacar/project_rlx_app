@@ -8,3 +8,23 @@ span.error {
     color: #f30000;
     font-size: 14px;
 }
+
+.authorDetails {
+    padding-top: 75px;
+}
+
+.authorDetails .row .col-lg-8 .card {
+    flex-direction: row;
+}
+
+.authorDetails .row .col-lg-8 .card img {
+    width: 185px;
+    height: 185px;
+}
+.authorDetails .row .col-lg-8 .card .card-body {
+    padding: 1rem;
+}
+
+.authorDetails .row .col-lg-8 .card .card-body p {
+    margin: 0;
+}

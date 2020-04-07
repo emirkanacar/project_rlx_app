@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authorize = require('../middlewares/auth');
 const permission = require('../middlewares/permission');
-const timeDiff = require('../helpers/timeDiffrence');
+const fs = require('fs');
+const restify = require('restify');
 
 /*
 * Mongo Models
@@ -125,11 +126,29 @@ module.exports = (server) => {
                     "username": doc.username,
                     "email": doc.email,
                     "userBiography": doc.userBiography,
+                    "userProfilePicture": doc.userProfilePicture,
                     "userGroup": doc.userGroup,
                     "userVerified": doc.userVerified,
                     "userSocialMedias": doc.userSocialMedias,
                     "created_at": doc.createdAt,
                     "updated_at": doc.updatedAt
+                };
+                res.send({ user: user, appCode: 21 });
+            }else {
+                res.send({ message:"User not found", appCode: 44 }, 404);
+            }
+        });
+    });
+    server.get('/user/:username', (req, res, next) => {
+        console.log(req.params)
+        Users.findOne({ username: req.params.username }, (err, doc) => {
+            if(doc !== null) {
+                let user = {
+                    "name": doc.name,
+                    "username": doc.username,
+                    "userBiography": doc.userBiography,
+                    "userProfilePicture": doc.userProfilePicture,
+                    "created_at": doc.createdAt,
                 };
                 res.send({ user: user, appCode: 21 });
             }else {
@@ -163,7 +182,9 @@ module.exports = (server) => {
                 if(!req.is('application/json')){
                     return res.send({ message: "Invalid content", appCode: 40}, 400);
                 }
-                let data = req.body || {};
+                let data = {
+                    ...req.body
+                };
                 let Post = new Posts(data);
                 Post.save((err) => {
                     if(err){
@@ -180,14 +201,14 @@ module.exports = (server) => {
     });
     server.get('/post/list', (req, res, next) => {
        Posts.apiQuery(req.params, (err, docs) => {
-           if(err) return res.send({ message: err.errors.name.message, appCode: 40}, 400);
+           if(err) return res.send(400, { message: err.errors.name.message, appCode: 40});
            res.send(docs);
            next();
        })
     });
     server.get('/post/getById/:post_id', (req, res, next) => {
         Posts.findOne({ _id: req.params.post_id }, (err, doc) => {
-            if(err) return res.send({ message: err.message, appCode: 40}, 400);
+            if(err) return res.send(400, { message: err.message, appCode: 40});
             res.send(doc);
             next();
         });
@@ -328,5 +349,10 @@ module.exports = (server) => {
             }
         });
     })
+
+    /* Media endpoints */
+    server.get('/media/user_profiles/*', restify.plugins.serveStatic({
+        directory: './public'
+    }));
 
 };

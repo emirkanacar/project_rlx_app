@@ -17,6 +17,11 @@ const PostsSchema = new mongoose.Schema({
         required: true,
         trim: false
     },
+    postAuthorName: {
+        type: String,
+        required: true,
+        trim: false
+    },
     postTags: {
         type: String,
         required: true,

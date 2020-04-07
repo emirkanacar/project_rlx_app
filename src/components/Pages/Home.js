@@ -13,6 +13,7 @@ import Footer from "../Layouts/footer";
 
 import '../../assets/App.css';
 import {Link} from "react-router-dom";
+import {Helmet} from "react-helmet";
 
 class Home extends Component {
 
@@ -27,6 +28,9 @@ class Home extends Component {
     render() {
         return (
             <div>
+                <Helmet>
+                    <title>{appConfig.APP_NAME + ' - Home'} </title>
+                </Helmet>
                 <Header />
                 <header className="masthead" style={{ backgroundImage: "url('img/home-bg.jpg')" }}>
                     <div className="overlay"/>
@@ -45,9 +49,11 @@ class Home extends Component {
                     <div className="row">
                         <div className="col-lg-8 col-md-10 mx-auto">
                             <PostList posts={this.props.posts} />
-                            <div className="clearfix">
-                                <Link className="btn btn-primary float-right" to={'/#'}>Older Posts &rarr;</Link>
-                            </div>
+                            { this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
+                                <div className="clearfix">
+                                    <Link className="btn btn-primary float-right" to={'/#'}>Older Posts &rarr;</Link>
+                                </div>
+                            ) }
                             <hr />
                         </div>
                     </div>
