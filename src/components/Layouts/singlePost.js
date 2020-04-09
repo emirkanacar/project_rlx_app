@@ -1,36 +1,17 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Link, Redirect} from "react-router-dom";
+import {connect} from "react-redux";
 import Moment from 'react-moment';
 import slugify from "slugify";
 import {Helmet} from "react-helmet";
 import appConfig from "../../appConfig";
+import SinglePostComment from './singlePostComment';
 
-import {fetchAuthorDetails} from '../../actions/singlePost';
+import {fetchAuthorDetails, fetchComments} from '../../actions/singlePost';
 
-import {connect} from "react-redux";
 
 class singlePost extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            authorDetailsFetched: false
-        };
-    }
-
-    getAuthorDetails = (username) => new Promise((resolve, reject) => {
-        if(!this.props.post.post.postAuthor === undefined) {
-            console.log("ok")
-            this.props.fetchAuthorDetails(username);
-            this.setState({ authorDetailsFetched: true })
-        }
-        resolve();
-    });
-
-    componentDidMount() {
-        this.getAuthorDetails(this.props.post.post.postAuthor);
-    }
 
     render() {
         const emptyMsg = (
@@ -87,6 +68,23 @@ class singlePost extends Component {
                                     </div>
                                 ) }
                                 <hr />
+                                <br />
+                                <div className={'postComments container'}>
+                                    <div className={'row'}>
+                                        <div className={'col-lg-8 col-md-10 mx-auto'}>
+                                            <h3>Comments</h3>
+                                            { this.props.post.errorComment.response ? (
+                                                <div className="alert alert-danger" role="alert">
+                                                    {this.props.post.errorComment.response.data.message}
+                                                </div>
+                                            ) : ('')}
+                                            { this.props.post.postComments !== undefined  ? (
+                                                <SinglePostComment comment={this.props.post.postComments} />
+                                            ) : ('Comment not found') }
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
                             </div>
                         ) : ( <Redirect to={'/'} /> )
                     )
@@ -109,14 +107,16 @@ singlePost.propTypes = {
     }).isRequired
 };
 
-const mapStateToProps = ({ postAuthor }) => {
+const mapStateToProps = ({ postAuthor, postComments }) => {
     return {
-        postAuthor
+        postAuthor,
+        postComments
     }
 };
 
 const mapDispatchToProps = {
-    fetchAuthorDetails
+    fetchAuthorDetails,
+    fetchComments
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(singlePost);

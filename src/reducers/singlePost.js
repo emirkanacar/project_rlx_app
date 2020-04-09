@@ -5,17 +5,24 @@ import {
 
     FETCH_AUTHOR_DETAILS_FULFILLED,
     FETCH_AUTHOR_DETAILS_PENDING,
-    FETCH_AUTHOR_DETAILS_REJECTED
+    FETCH_AUTHOR_DETAILS_REJECTED,
+
+    FETCH_COMMENTS_FULFILLED,
+    FETCH_COMMENTS_PENDING,
+    FETCH_COMMENTS_REJECTED
 
 } from "../actions/singlePost";
 
 const initialState = {
-    fetching: true,
+    fetching: false,
     authorFetching: false,
+    commentsFetching: false,
     post: {},
     postAuthor: {},
+    postComments: [],
     error: {},
-    errorAuthor: {}
+    errorAuthor: {},
+    errorComment: {}
 };
 
 export default (state = initialState, action) => {
@@ -53,6 +60,24 @@ export default (state = initialState, action) => {
                 ...state,
                 errorAuthor: action.payload,
                 authorFetching: false
+            };
+
+        case FETCH_COMMENTS_PENDING:
+            return {
+                ...state,
+                commentsFetching: true
+            };
+        case FETCH_COMMENTS_FULFILLED:
+            return {
+                ...state,
+                postComments: action.payload,
+                commentsFetching: false
+            };
+        case FETCH_COMMENTS_REJECTED:
+            return {
+                ...state,
+                errorComment: action.payload,
+                commentsFetching: false
             };
 
         default:

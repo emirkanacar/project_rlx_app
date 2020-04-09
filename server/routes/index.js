@@ -4,6 +4,7 @@ const authorize = require('../middlewares/auth');
 const permission = require('../middlewares/permission');
 const fs = require('fs');
 const restify = require('restify');
+const _ = require('lodash');
 
 /*
 * Mongo Models
@@ -140,7 +141,6 @@ module.exports = (server) => {
         });
     });
     server.get('/user/:username', (req, res, next) => {
-        console.log(req.params)
         Users.findOne({ username: req.params.username }, (err, doc) => {
             if(doc !== null) {
                 let user = {
@@ -281,6 +281,45 @@ module.exports = (server) => {
             res.send({ message: "Comment created successfully", appCode: 21 }, 201);
             next();
         })
+    });
+    server.get('/comment/list/:postid', (req, res, next) => {
+        Comments.find({ commentTargetPostID: req.params.postid }, (err, doc) => {
+            if(err) return res.send(400, { message: err.message, appCode: 40});
+            if(doc === null) {
+                res.send(404, { message: "Comments not found", appcode: 44 });
+            }else {
+                let comments = [];
+
+                Promise.all(doc.map(comment => {
+                    return Users.findOne({ _id: comment.commentSenderID }).exec()
+                })).then(commentUser => {
+
+                    doc.map(comment => {
+                        _.find(commentUser, (obj) => {
+                            if(obj.id === comment.commentSenderID) {
+                                comments.push({
+                                    id: comment._id,
+                                    commentSenderID: comment.commentSenderID,
+                                    commentSenderUser: { username: obj.username, name: obj.name, profilePicture: obj.userProfilePicture },
+                                    commentTargetPostID: comment.commentTargetPostID,
+                                    commentContent: comment.commentContent,
+                                    commentLikeCount: comment.commentLikeCount,
+                                    commentCreatedAt: comment.createdAt
+                                });
+                            }
+                        });
+                    });
+
+                    comments = _.uniqBy(comments, 'id');
+                    res.send(comments)
+                }).catch(err => {
+                    res.send(500, { message: err.message, appCode: 50 })
+                });
+
+                next();
+            }
+
+        });
     });
     server.put('/comment/like/:id', authorize, (req, res, next) => {
         if(!req.is('application/json')){

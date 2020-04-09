@@ -28,3 +28,36 @@ span.error {
 .authorDetails .row .col-lg-8 .card .card-body p {
     margin: 0;
 }
+
+.postComments .row .col-lg-8 h3 {
+    padding-bottom: 20px;
+    padding-top: 10px;
+}
+
+.commentCard {
+    flex-direction: row!important;
+    margin-bottom: 20px;
+}
+
+.commentCard img {
+    width: 100px;
+    height: 100px;
+}
+
+.commentCard > .card-body {
+    padding: 10px 0 0 15px!important;
+}
+
+.commentCard > .card-body > .card-title {
+    margin-bottom: 0;
+}
+
+.commentCard > .card-body > .card-text {
+    margin-top: 5px;
+    margin-bottom: 0px;
+    font-size: 17px;
+}
+
+.commentCard > .card-body > .time {
+    font-size: 14px;
+}
