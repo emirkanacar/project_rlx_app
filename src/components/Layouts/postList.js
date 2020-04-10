@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Link } from "react-router-dom";
-import { GridLoader } from "react-spinners";
+import {Link} from "react-router-dom";
+import {GridLoader} from "react-spinners";
 import Moment from 'react-moment';
 import slugify from "slugify";
 
@@ -22,17 +22,23 @@ class PostList extends Component {
                     this.props.posts.error.response ? <h3>API Error</h3> :
                         this.props.posts.postList.map( post =>
                             <div className="post-preview" key={post._id}>
-                                <Link target={'_blank'} to={'/post/' + slugify(post.postName, { replacement: '-', lower: true }) + '_' + post._id }>
+                                <Link target={'_blank'} to={'/post/' + slugify(String(post.postName), {
+                                    replacement: '-',
+                                    lower: true
+                                }) + '_' + post._id}>
                                     <h2 className="post-title">
-                                        { post.postName }
+                                        {post.postName}
                                     </h2>
                                     <h3 className="post-subtitle">
-                                        { post.postContent.substr(0,45) + '...' }
+                                        {String(post.postContent).substr(0, 45) + '...'}
                                     </h3>
                                 </Link>
                                 <p className="post-meta">Posted by
-                                    <Link target={'_blank'} to={'/user/' + slugify(post.postAuthor, { replacement: '-', lower: true }) }> { post.postAuthorName } </Link>
-                                    <Moment toNow>{ post.createdAt }</Moment></p>
+                                    <Link target={'_blank'} to={'/user/' + slugify(String(post.postAuthor), {
+                                        replacement: '-',
+                                        lower: true
+                                    })}> {post.postAuthorName} </Link>
+                                    <Moment toNow>{post.createdAt}</Moment></p>
                             </div>
                         )
                 }
@@ -45,7 +51,7 @@ class PostList extends Component {
             </div>
         );
     }
-};
+}
 
 PostList.propTypes = {
   posts: PropTypes.shape({

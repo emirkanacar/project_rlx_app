@@ -3,7 +3,7 @@ const mongooseStringQuery = require('mongoose-string-query');
 const timestamps = require('mongoose-timestamp');
 
 const CommentsSchema = new mongoose.Schema({
-    commentSenderID: {
+    commentSenderUsername: {
         type: String,
         required: true
     },

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import {Helmet} from "react-helmet";
 
 import Header from "../Layouts/header";
@@ -29,7 +29,7 @@ class AuthLogin extends Component {
     }
 
     handleChange = event => {
-        event.preventDefault()
+        event.preventDefault();
         const { name, value } = event.target;
         let errors = this.state.errors;
 

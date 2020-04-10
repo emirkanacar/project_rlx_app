@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import slugify from "slugify";
 import appConfig from "../../appConfig";
 
@@ -104,7 +104,7 @@ const Navbar = ({ auth }) => {
 
 Navbar.propTypes = {
     auth: PropTypes.shape({
-        user: PropTypes.array.isRequired
+        user: PropTypes.object.isRequired
     }).isRequired
 };
 

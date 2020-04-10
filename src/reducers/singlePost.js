@@ -1,28 +1,31 @@
 import {
-    FETCH_POST_FULFILLED,
-    FETCH_POST_PENDING,
-    FETCH_POST_REJECTED,
-
     FETCH_AUTHOR_DETAILS_FULFILLED,
     FETCH_AUTHOR_DETAILS_PENDING,
     FETCH_AUTHOR_DETAILS_REJECTED,
-
     FETCH_COMMENTS_FULFILLED,
     FETCH_COMMENTS_PENDING,
-    FETCH_COMMENTS_REJECTED
-
+    FETCH_COMMENTS_REJECTED,
+    FETCH_POST_FULFILLED,
+    FETCH_POST_PENDING,
+    FETCH_POST_REJECTED,
+    SAVE_POST_COMMENT_FULFILLED,
+    SAVE_POST_COMMENT_PENDING,
+    SAVE_POST_COMMENT_REJECTED
 } from "../actions/singlePost";
 
 const initialState = {
     fetching: false,
     authorFetching: false,
     commentsFetching: false,
+    newCommentSaving: false,
     post: {},
     postAuthor: {},
     postComments: [],
+    newComment: {},
     error: {},
     errorAuthor: {},
-    errorComment: {}
+    errorComment: {},
+    newCommentError: {}
 };
 
 export default (state = initialState, action) => {
@@ -78,6 +81,24 @@ export default (state = initialState, action) => {
                 ...state,
                 errorComment: action.payload,
                 commentsFetching: false
+            };
+
+        case SAVE_POST_COMMENT_PENDING:
+            return {
+                ...state,
+                newCommentSaving: true
+            };
+        case SAVE_POST_COMMENT_FULFILLED:
+            return {
+                ...state,
+                newComment: action.payload,
+                newCommentSaving: false
+            };
+        case SAVE_POST_COMMENT_REJECTED:
+            return {
+                ...state,
+                newCommentError: action.payload,
+                newCommentSaving: false
             };
 
         default:

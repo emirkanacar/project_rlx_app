@@ -8,10 +8,61 @@ import {Helmet} from "react-helmet";
 import appConfig from "../../appConfig";
 import SinglePostComment from './singlePostComment';
 
-import {fetchAuthorDetails, fetchComments} from '../../actions/singlePost';
-
+import {fetchAuthorDetails, fetchComments, savePostComment} from '../../actions/singlePost';
+import {checkAuth} from "../../actions/auth";
 
 class singlePost extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            commentArea: '',
+            error: {
+                commentArea: ''
+            },
+            newComments: []
+        }
+    }
+
+    handleChange = event => {
+        event.preventDefault();
+        const {name, value} = event.target;
+        let error = this.state.error;
+
+        switch (name) {
+            case 'commentArea':
+                error.commentArea = value.length < 5 ? 'Comment must 5 be characters long' : '';
+                break;
+            default:
+                break;
+        }
+
+        this.setState({
+            [name]: value,
+            error
+        });
+    };
+
+    handleSubmit = event => {
+        event.preventDefault();
+        const postData = {
+            commentContent: this.state.commentArea,
+            commentSenderUsername: this.props.auth.user.username,
+            commentTargetPostID: this.props.post.post._id
+        };
+        const token = localStorage.getItem('auth_token');
+        this.props.savePostComment(postData, token);
+    };
+
+    static propTypes = {
+        auth: PropTypes.object
+    };
+
+    componentDidMount() {
+        if (localStorage.getItem('auth_token')) {
+            this.props.checkAuth(localStorage.getItem('auth_token'));
+        }
+    }
 
     render() {
         const emptyMsg = (
@@ -21,7 +72,7 @@ class singlePost extends Component {
         const postList = (
             <div>
                 {
-                    this.props.post.error.response ? (<Redirect to={'/'} />) : (
+                    this.props.post.error.response ? (<Redirect to={'/'}/>) : (
                         this.props.post.post ? (
                             <div>
                                 <Helmet>
@@ -73,13 +124,41 @@ class singlePost extends Component {
                                     <div className={'row'}>
                                         <div className={'col-lg-8 col-md-10 mx-auto'}>
                                             <h3>Comments</h3>
-                                            { this.props.post.errorComment.response ? (
+                                            {this.props.auth.isAuth ? (
+                                                <div className={"newComment"}>
+                                                    <div className={'validationErrors'}>
+                                                        {this.state.error.commentArea.length > 0 ? (
+                                                            <div className="alert alert-danger" role="alert">
+                                                                {this.state.error.commentArea}
+                                                            </div>
+                                                        ) : ''}
+                                                    </div>
+                                                    <form onSubmit={this.handleSubmit}>
+                                                        <div className="form-group">
+                                                            <label htmlFor="commentTextarea">Enter your comment</label>
+                                                            <textarea style={{resize: "none"}} className="form-control"
+                                                                      name={'commentArea'} id="commentTextarea" rows="3"
+                                                                      value={this.state.commentArea}
+                                                                      onChange={this.handleChange} required/>
+                                                        </div>
+                                                        <button type="submit" className="btn btn-primary">Submit
+                                                        </button>
+                                                    </form>
+                                                    <hr/>
+                                                </div>
+                                            ) : ''}
+                                            {this.props.post.newComment.appCode === 21 ? window.location.reload() : ''}
+                                            {this.props.post.errorComment.response ? (
                                                 <div className="alert alert-danger" role="alert">
                                                     {this.props.post.errorComment.response.data.message}
                                                 </div>
                                             ) : ('')}
-                                            { this.props.post.postComments !== undefined  ? (
-                                                <SinglePostComment comment={this.props.post.postComments} />
+                                            {this.props.post.postComments !== undefined ? (
+                                                <div>
+                                                    {this.props.post.postComments.map(comment =>
+                                                        <SinglePostComment comment={comment}/>
+                                                    )}
+                                                </div>
                                             ) : ('Comment not found') }
                                         </div>
                                     </div>
@@ -99,7 +178,7 @@ class singlePost extends Component {
             </div>
         );
     }
-};
+}
 
 singlePost.propTypes = {
     post: PropTypes.shape({
@@ -107,16 +186,19 @@ singlePost.propTypes = {
     }).isRequired
 };
 
-const mapStateToProps = ({ postAuthor, postComments }) => {
+const mapStateToProps = ({postAuthor, postComments, auth, savePostComment}) => {
     return {
         postAuthor,
-        postComments
+        postComments,
+        auth
     }
 };
 
 const mapDispatchToProps = {
     fetchAuthorDetails,
-    fetchComments
+    fetchComments,
+    checkAuth,
+    savePostComment
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(singlePost);

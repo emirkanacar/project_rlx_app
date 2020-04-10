@@ -200,11 +200,20 @@ module.exports = (server) => {
         });
     });
     server.get('/post/list', (req, res, next) => {
-       Posts.apiQuery(req.params, (err, docs) => {
-           if(err) return res.send(400, { message: err.errors.name.message, appCode: 40});
-           res.send(docs);
-           next();
-       })
+        let limit = 5;
+        let page = 1;
+        if (req.params.page !== undefined) page = req.params.page;
+
+        Posts.apiQuery(req.params)
+            .sort({createdAt: -1})
+            .skip((limit * page) - limit)
+            .limit(limit)
+            .then(docs => {
+                if (docs !== null) res.send(docs)
+            })
+            .catch(err => {
+                if (err) return res.send(400, {message: err.errors.name.message, appCode: 40});
+            })
     });
     server.get('/post/getById/:post_id', (req, res, next) => {
         Posts.findOne({ _id: req.params.post_id }, (err, doc) => {
@@ -273,53 +282,68 @@ module.exports = (server) => {
         let data = req.body || {};
         let Comment = new Comments(data);
 
-        Comment.save((err) => {
-            if(err){
-                return res.send({ message: err.message, appCode: 50}, 500);
+        Comment.save((err, insertID) => {
+            if (err) {
+                return res.send({message: err.message, appCode: 50}, 500);
                 next();
             }
-            res.send({ message: "Comment created successfully", appCode: 21 }, 201);
+
+            res.send({message: "Comment created successfully", appCode: 21}, 201);
             next();
         })
     });
     server.get('/comment/list/:postid', (req, res, next) => {
-        Comments.find({ commentTargetPostID: req.params.postid }, (err, doc) => {
-            if(err) return res.send(400, { message: err.message, appCode: 40});
-            if(doc === null) {
-                res.send(404, { message: "Comments not found", appcode: 44 });
-            }else {
-                let comments = [];
 
-                Promise.all(doc.map(comment => {
-                    return Users.findOne({ _id: comment.commentSenderID }).exec()
-                })).then(commentUser => {
+        let limit = 10;
+        let page = 1;
+        if (req.params.page !== undefined) page = req.params.page;
 
-                    doc.map(comment => {
-                        _.find(commentUser, (obj) => {
-                            if(obj.id === comment.commentSenderID) {
-                                comments.push({
-                                    id: comment._id,
-                                    commentSenderID: comment.commentSenderID,
-                                    commentSenderUser: { username: obj.username, name: obj.name, profilePicture: obj.userProfilePicture },
-                                    commentTargetPostID: comment.commentTargetPostID,
-                                    commentContent: comment.commentContent,
-                                    commentLikeCount: comment.commentLikeCount,
-                                    commentCreatedAt: comment.createdAt
-                                });
-                            }
+        Comments.find({commentTargetPostID: req.params.postid})
+            .sort({createdAt: -1})
+            .skip((limit * page) - limit)
+            .limit(limit)
+            .then(doc => {
+                if (doc === null) {
+                    res.send(404, {message: "Comments not found", appcode: 44});
+                } else {
+                    let comments = [];
+
+                    Promise.all(doc.map(comment => {
+                        return Users.findOne({username: comment.commentSenderUsername}).exec()
+                    })).then(commentUser => {
+                        doc.map(comment => {
+                            _.find(commentUser, (obj) => {
+                                if (obj.username === comment.commentSenderUsername) {
+                                    comments.push({
+                                        id: comment._id,
+                                        commentSenderUsername: comment.commentSenderUsername,
+                                        commentSenderUser: {
+                                            username: obj.username,
+                                            name: obj.name,
+                                            profilePicture: obj.userProfilePicture
+                                        },
+                                        commentTargetPostID: comment.commentTargetPostID,
+                                        commentContent: comment.commentContent,
+                                        commentLikeCount: comment.commentLikeCount,
+                                        commentCreatedAt: comment.createdAt
+                                    });
+                                }
+                            });
                         });
+
+                        comments = _.uniqBy(comments, 'id');
+                        if (comments !== null) res.send(comments)
+                    }).catch(err => {
+                        res.send(500, {message: err.message, appCode: 50})
                     });
 
-                    comments = _.uniqBy(comments, 'id');
-                    res.send(comments)
-                }).catch(err => {
-                    res.send(500, { message: err.message, appCode: 50 })
-                });
+                    next();
+                }
 
-                next();
-            }
-
-        });
+            })
+            .catch(err => {
+                if (err) return res.send(400, {message: err.message, appCode: 40});
+            });
     });
     server.put('/comment/like/:id', authorize, (req, res, next) => {
         if(!req.is('application/json')){
@@ -377,17 +401,17 @@ module.exports = (server) => {
             {
                 Comments.findOneAndDelete(req.params.id, (err, data) => {
                     if(err) return res.send({ message: "Invalid content", appCode: 40}, 400);
-                    if(data === null){
-                        res.send({ message: "Comment not found", appCode: 44 }, 404);
-                    }else {
-                        res.send({ message: "Comment deleted successfully", appCode: 21 }, 201);
+                    if (data === null) {
+                        res.send({message: "Comment not found", appCode: 44}, 404);
+                    } else {
+                        res.send({message: "Comment deleted successfully", appCode: 21}, 201);
                     }
                 })
-            }else {
-                res.send({ message: "Permission error", appCode: 41 }, 400);
+            } else {
+                res.send({message: "Permission error", appCode: 41}, 400);
             }
         });
-    })
+    });
 
     /* Media endpoints */
     server.get('/media/user_profiles/*', restify.plugins.serveStatic({
