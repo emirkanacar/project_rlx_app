@@ -1,11 +1,9 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import appConfig from "../../appConfig";
 
-import {
-    fetchPosts
-} from "../../actions/posts";
+import {fetchPosts} from "../../actions/posts";
 
 import PostList from '../Layouts/postList';
 import Header from "../Layouts/header";
@@ -51,7 +49,8 @@ class Home extends Component {
                             <PostList posts={this.props.posts} />
                             { this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
                                 <div className="clearfix">
-                                    <Link className="btn btn-primary float-right" to={'/#'}>Older Posts &rarr;</Link>
+                                    <Link className="btn btn-primary float-right" to={'/posts/list'}>Older
+                                        Posts &rarr;</Link>
                                 </div>
                             ) }
                             <hr />

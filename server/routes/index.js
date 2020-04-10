@@ -5,6 +5,7 @@ const permission = require('../middlewares/permission');
 const fs = require('fs');
 const restify = require('restify');
 const _ = require('lodash');
+const faker = require('faker');
 
 /*
 * Mongo Models
@@ -209,7 +210,18 @@ module.exports = (server) => {
             .skip((limit * page) - limit)
             .limit(limit)
             .then(docs => {
-                if (docs !== null) res.send(docs)
+                Posts.countDocuments((err, totalCount) => {
+                    if (err) return res.send(400, {message: err.message, appCode: 40});
+                    let posts = [];
+
+                    let pageData = {totalPages: Math.ceil(totalCount / limit), currentPage: page};
+                    posts.push(pageData);
+                    docs.map(post => {
+                        posts.push(post)
+                    });
+
+                    if (posts !== null) res.send(posts)
+                });
             })
             .catch(err => {
                 if (err) return res.send(400, {message: err.errors.name.message, appCode: 40});
@@ -263,21 +275,39 @@ module.exports = (server) => {
                     if(err) return res.send({ message: err.message, appCode: 40}, 400);
                     if(data === null){
                         res.send({ message: "Post not found", appCode: 44 }, 404);
-                    }else {
-                        res.send({ message: "Post successfully updated", appCode: 21 }, 201);
+                    } else {
+                        res.send({message: "Post successfully updated", appCode: 21}, 201);
                     }
                 });
 
-            }else {
-                res.send({ message: "Permission error", appCode: 41 }, 400);
+            } else {
+                res.send({message: "Permission error", appCode: 41}, 400);
             }
         });
+    });
+    server.get('/post/faker', (req, res, next) => {
+        let posts = [];
+
+        for (let i = 0; i < 10; i += 1) {
+            let newPost = {
+                postName: faker.lorem.words(7),
+                postDesc: faker.lorem.words(50),
+                postContent: faker.lorem.words(350),
+                postAuthor: "relakith",
+                postAuthorName: "Emirkan Acar",
+                postTags: "teknoloji,lorem,ipsum",
+                postCategory: "Teknoloji",
+            };
+            posts.push(newPost);
+        }
+        Posts.insertMany(posts)
+
     });
 
     /* Comment endpoints */
     server.post('/comment/create', authorize, (req, res, next) => {
-        if(!req.is('application/json')){
-            return res.send({ message: "Invalid content", appCode: 40}, 400);
+        if (!req.is('application/json')) {
+            return res.send({message: "Invalid content", appCode: 40}, 400);
         }
         let data = req.body || {};
         let Comment = new Comments(data);

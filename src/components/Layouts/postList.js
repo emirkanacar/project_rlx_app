@@ -20,7 +20,7 @@ class PostList extends Component {
                 />
                 {
                     this.props.posts.error.response ? <h3>API Error</h3> :
-                        this.props.posts.postList.map( post =>
+                        this.props.posts.postList.splice(1, 5).map(post =>
                             <div className="post-preview" key={post._id}>
                                 <Link target={'_blank'} to={'/post/' + slugify(String(post.postName), {
                                     replacement: '-',
