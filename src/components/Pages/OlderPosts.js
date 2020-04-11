@@ -5,7 +5,7 @@ import appConfig from "../../appConfig";
 
 import {fetchPosts} from "../../actions/posts";
 
-import SinglePost from '../Layouts/singlePostLayout';
+import SinglePostLayout from '../Layouts/singlePostLayout';
 import Header from "../Layouts/header";
 import Footer from "../Layouts/footer";
 
@@ -58,10 +58,15 @@ class OlderPosts extends Component {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-8 col-md-10 mx-auto">
-                            <SinglePost posts={this.props.posts}/>
+                            {this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
+                                this.props.posts.postList.splice(1, 5).map(post =>
+                                    <div>
+                                        <SinglePostLayout post={post}/>
+                                    </div>
+                                )
+                            )}
                             {this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
                                 <div className="clearfix">
-                                    {console.log(this.state)}
                                     {parseInt(this.state.currentPage) === 1 ? (
                                         <div>
                                             <a className="btn btn-primary float-right"
