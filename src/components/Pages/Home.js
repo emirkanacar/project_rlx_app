@@ -5,7 +5,7 @@ import appConfig from "../../appConfig";
 
 import {fetchPosts} from "../../actions/posts";
 
-import PostList from '../Layouts/postList';
+import SinglePostLayout from '../Layouts/singlePostLayout';
 import Header from "../Layouts/header";
 import Footer from "../Layouts/footer";
 
@@ -46,14 +46,21 @@ class Home extends Component {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-8 col-md-10 mx-auto">
-                            <PostList posts={this.props.posts} />
-                            { this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
+                            {
+                                this.props.posts.error.response ? <h3>API Error</h3> :
+                                    this.props.posts.postList.splice(1, 5).map(post =>
+                                        <div>
+                                            <SinglePostLayout post={post}/>
+                                        </div>
+                                    )
+                            }
+                            {this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
                                 <div className="clearfix">
                                     <Link className="btn btn-primary float-right" to={'/posts/list'}>Older
                                         Posts &rarr;</Link>
                                 </div>
-                            ) }
-                            <hr />
+                            )}
+                            <hr/>
                         </div>
                     </div>
                 </div>

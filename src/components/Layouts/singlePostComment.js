@@ -8,9 +8,10 @@ import slugify from "slugify";
 class SinglePostComment extends Component {
     render() {
         return (
-            <div className="card commentCard" key={this.props.comment.id}>
+            <div className="card commentCard" key={this.props.comment._id}>
                 <img className="card-img-top"
-                     src={this.props.comment.commentSenderUser.profilePicture === null ? appConfig.APP_API_URL + '/media/user_profiles/default-profile.png' : appConfig.APP_API_URL + '/media/user_profiles/' + this.props.comment.commentSenderUser.profilePicture}/>
+                     src={this.props.comment.commentSenderUser.profilePicture === null ? appConfig.APP_API_URL + '/media/user_profiles/default-profile.png' : appConfig.APP_API_URL + '/media/user_profiles/' + this.props.comment.commentSenderUser.profilePicture}
+                     alt={String(this.props.comment.commentSenderUser.username)}/>
                 <div className="card-body">
                     <h5 className="card-title"><Link target={'_blank'}
                                                      to={'/user/' + slugify(String(this.props.comment.commentSenderUser.username), {

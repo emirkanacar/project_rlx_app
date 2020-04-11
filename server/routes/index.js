@@ -228,11 +228,16 @@ module.exports = (server) => {
             })
     });
     server.get('/post/getById/:post_id', (req, res, next) => {
-        Posts.findOne({ _id: req.params.post_id }, (err, doc) => {
-            if(err) return res.send(400, { message: err.message, appCode: 40});
-            res.send(doc);
-            next();
-        });
+        Posts.findOne({_id: req.params.post_id})
+            .sort({createdAt: -1})
+            .limit(5)
+            .then(doc => {
+                res.send(doc);
+                next();
+            })
+            .catch(err => {
+                if (err) return res.send(400, {message: err.message, appCode: 40});
+            });
     });
     server.get('/post/getByCategory/:category_name', (req, res, next) => {
         Posts.find({ postCategory: req.params.category_name }, (err, doc) => {
@@ -242,11 +247,16 @@ module.exports = (server) => {
         })
     });
     server.get('/post/getByAuthor/:author_name', (req, res, next) => {
-        Posts.find({ postAuthor: req.params.author_name }, (err, doc) => {
-            if(err) return res.send({ message: err.message, appCode: 40}, 400);
-            res.send(doc);
-            next();
-        })
+        Posts.find({postAuthor: req.params.author_name})
+            .sort({createdAt: -1})
+            .limit(5)
+            .then(doc => {
+                res.send(doc);
+                next();
+            })
+            .catch(err => {
+                if (err) return res.send(400, {message: err.message, appCode: 40});
+            });
     });
     server.del('/post/delete/:id', authorize, (req, res, next) => {
         permission(req.userData, "Admin", (message) => {
@@ -334,7 +344,7 @@ module.exports = (server) => {
             .limit(limit)
             .then(doc => {
                 if (doc === null) {
-                    res.send(404, {message: "Comments not found", appcode: 44});
+                    res.send(404, {message: "Comments not found", appCode: 44});
                 } else {
                     let comments = [];
 
@@ -345,7 +355,7 @@ module.exports = (server) => {
                             _.find(commentUser, (obj) => {
                                 if (obj.username === comment.commentSenderUsername) {
                                     comments.push({
-                                        id: comment._id,
+                                        _id: comment._id,
                                         commentSenderUsername: comment.commentSenderUsername,
                                         commentSenderUser: {
                                             username: obj.username,
@@ -361,7 +371,54 @@ module.exports = (server) => {
                             });
                         });
 
-                        comments = _.uniqBy(comments, 'id');
+                        comments = _.uniqBy(comments, '_id');
+                        if (comments !== null) res.send(comments)
+                    }).catch(err => {
+                        res.send(500, {message: err.message, appCode: 50})
+                    });
+
+                    next();
+                }
+
+            })
+            .catch(err => {
+                if (err) return res.send(400, {message: err.message, appCode: 40});
+            });
+    });
+    server.get('/comment/getByAuthor/:authorName', (req, res, next) => {
+        Comments.find({commentSenderUsername: req.params.authorName})
+            .sort({createdAt: -1})
+            .limit(5)
+            .then(doc => {
+                if (doc === null) {
+                    res.send(404, {message: "Comments not found", appCode: 44});
+                } else {
+                    let comments = [];
+
+                    Promise.all(doc.map(comment => {
+                        return Users.findOne({username: comment.commentSenderUsername}).exec()
+                    })).then(commentUser => {
+                        doc.map(comment => {
+                            _.find(commentUser, (obj) => {
+                                if (obj.username === comment.commentSenderUsername) {
+                                    comments.push({
+                                        _id: comment._id,
+                                        commentSenderUsername: comment.commentSenderUsername,
+                                        commentSenderUser: {
+                                            username: obj.username,
+                                            name: obj.name,
+                                            profilePicture: obj.userProfilePicture
+                                        },
+                                        commentTargetPostID: comment.commentTargetPostID,
+                                        commentContent: comment.commentContent,
+                                        commentLikeCount: comment.commentLikeCount,
+                                        commentCreatedAt: comment.createdAt
+                                    });
+                                }
+                            });
+                        });
+
+                        comments = _.uniqBy(comments, '_id');
                         if (comments !== null) res.send(comments)
                     }).catch(err => {
                         res.send(500, {message: err.message, appCode: 50})
@@ -376,8 +433,8 @@ module.exports = (server) => {
             });
     });
     server.put('/comment/like/:id', authorize, (req, res, next) => {
-        if(!req.is('application/json')){
-            return res.send({ message: "Invalid content", appCode: 40}, 400);
+        if (!req.is('application/json')) {
+            return res.send({message: "Invalid content", appCode: 40}, 400);
         }
         let data = req.body || {};
         let postData = {

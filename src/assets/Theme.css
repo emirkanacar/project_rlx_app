@@ -61,3 +61,13 @@ span.error {
 .commentCard > .card-body > .time {
     font-size: 14px;
 }
+
+.userProfileImage > img {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+}
+
+.post-preview a .post-title {
+    font-size: 32px !important;
+}

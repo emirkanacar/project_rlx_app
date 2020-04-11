@@ -5,7 +5,7 @@ import appConfig from "../../appConfig";
 
 import {fetchPosts} from "../../actions/posts";
 
-import PostList from '../Layouts/postList';
+import SinglePost from '../Layouts/singlePostLayout';
 import Header from "../Layouts/header";
 import Footer from "../Layouts/footer";
 
@@ -35,20 +35,11 @@ class OlderPosts extends Component {
         }
     }
 
-    increasePage = event => {
-        event.preventDefault();
-        this.setState({currentPage: parseInt(this.state.currentPage) + 1})
-    };
-    decreasePage = event => {
-        event.preventDefault();
-        this.setState({currentPage: parseInt(this.state.currentPage) - 1})
-    };
-
     render() {
         return (
             <div>
                 <Helmet>
-                    <title>{appConfig.APP_NAME + ' - Older Posts'} </title>
+                    <title>{appConfig.APP_NAME + ' - Older Posts - Page ' + this.state.currentPage} </title>
                 </Helmet>
                 <Header/>
                 <header className="masthead" style={{backgroundImage: "url('img/home-bg.jpg')"}}>
@@ -58,6 +49,7 @@ class OlderPosts extends Component {
                             <div className="col-lg-8 col-md-10 mx-auto">
                                 <div className="site-heading">
                                     <h1>Older Posts</h1>
+                                    <span className="subheading">Page {this.state.currentPage}</span>
                                 </div>
                             </div>
                         </div>
@@ -66,7 +58,7 @@ class OlderPosts extends Component {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-8 col-md-10 mx-auto">
-                            <PostList posts={this.props.posts}/>
+                            <SinglePost posts={this.props.posts}/>
                             {this.props.posts.postList.length === 0 ? (<p>No post</p>) : (
                                 <div className="clearfix">
                                     {console.log(this.state)}
